@@ -5,11 +5,23 @@ import { connectToDatabase } from "../db";
 import User from "../models/user.model";
 import { CreateUserParams, UpdateUserParams } from "@/types/types";
 
-export async function createUser(userData: CreateUserParams) {
+export async function createUser({
+  clerkId,
+  name,
+  username,
+  email,
+  picture,
+}: CreateUserParams) {
   try {
     await connectToDatabase();
 
-    const newUser = await User.create(userData);
+    const newUser = await User.create({
+      clerkId,
+      username,
+      name,
+      email,
+      picture,
+    });
 
     return newUser;
   } catch (error) {
