@@ -17,24 +17,28 @@ const todoSchema = new Schema(
     },
     description: {
       type: String,
-      trim: true,
+      required: true,
     },
     dueDate: {
       type: Date,
+      required: true,
     },
     status: {
       type: String,
       enum: ["pending", "completed"],
       default: "pending",
+      required: true,
     },
     priority: {
       type: String,
       enum: ["high", "medium", "low"],
       default: "medium",
+      required: true,
     },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   { timestamps: true }
