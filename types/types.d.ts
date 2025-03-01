@@ -1,9 +1,12 @@
+export type Priority = "high" | "medium" | "low";
+
 export interface ICreateTodo {
   title: string;
   description: string;
-  dueDate: string;
+  dueDate: Date;
   status: string;
   priority: string;
+  clerkId: string;
 }
 
 export interface CreateUserParams {
