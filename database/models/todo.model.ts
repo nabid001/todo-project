@@ -40,6 +40,12 @@ const todoSchema = new Schema(
       ref: "User",
       required: true,
     },
+    taskId: {
+      type: String,
+    },
+    taskListId: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

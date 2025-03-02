@@ -22,3 +22,26 @@ export interface UpdateUserParams {
   updateData: Partial<IUser>;
   path: string;
 }
+
+export interface IDeleteTodo {
+  todoId: string;
+  clerkId: string;
+  taskId: string;
+  taskListId: string;
+}
+
+type TaskInput = {
+  title: string;
+  description: string;
+  dueDate: Date;
+  status: string;
+  priority: string;
+  clerkId: string;
+};
+
+type TaskResponse = {
+  success: boolean;
+  task?: any;
+  error?: string;
+  taskListId?: string;
+};

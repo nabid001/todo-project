@@ -5,6 +5,7 @@ import TodoList from "@/components/TodoList";
 import { getTodo } from "@/database/actions/todo.actions";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+
 const Home = async ({
   searchParams,
 }: {
@@ -30,7 +31,7 @@ const Home = async ({
           <AddTodoDialog clerkId={userId} />
         </div>
 
-        {data.length === 0 ? (
+        {data?.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-slate-500 dark:text-slate-400">
               {data.length === 0

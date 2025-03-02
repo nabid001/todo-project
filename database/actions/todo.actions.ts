@@ -1,12 +1,14 @@
 "use server";
 
-import { ICreateTodo } from "@/types/types";
+import { ICreateTodo, IDeleteTodo } from "@/types/types";
 import { connectToDatabase } from "../db";
 import Todo, { ITodo } from "../models/todo.model";
 import { parseData } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import User from "../models/user.model";
 import { startOfDay, endOfDay } from "date-fns";
+import { createGoogleTask, getOAuthClient } from "@/lib/google";
+import { google } from "googleapis";
 
 export const getTodo = async ({
   status,
@@ -88,6 +90,30 @@ export const createTodo = async ({
       throw new Error("Failed to create todo");
     }
 
+    const googleTask = await createGoogleTask({
+      title,
+      description,
+      dueDate,
+      status,
+      priority,
+      clerkId,
+    });
+
+    if (!googleTask || !googleTask.task || !googleTask.taskListId) {
+      throw new Error("Failed to create Google Task");
+    }
+
+    await Todo.findByIdAndUpdate(
+      newTodo._id,
+      {
+        $set: {
+          taskId: googleTask.task,
+          taskListId: googleTask.taskListId,
+        },
+      },
+      { new: true }
+    );
+
     revalidatePath("/");
     return parseData(newTodo);
   } catch (error) {
@@ -98,14 +124,36 @@ export const createTodo = async ({
 export const checkTodoStatus = async ({
   todoId,
   isCompleted,
+  taskId,
+  taskListId,
+  clerkId,
 }: {
   todoId: string;
   isCompleted: "pending" | "completed";
+  taskId: string;
+  taskListId: string;
+  clerkId: string;
 }) => {
   try {
     await connectToDatabase();
-    let updatedStatus = {};
 
+    const oAuthClient = await getOAuthClient(clerkId);
+    if (!oAuthClient) {
+      throw new Error("Not authenticated with Google");
+    }
+
+    const task = google.tasks({ version: "v1", auth: oAuthClient });
+
+    const currentTask = await task.tasks.get({
+      task: taskId,
+      tasklist: taskListId,
+    });
+
+    if (!currentTask.data.status) {
+      throw new Error("Failed to check task status");
+    }
+
+    let updatedStatus = {};
     const todo = await Todo.findById(todoId);
     if (!todo) {
       throw new Error("Todo not found");
@@ -113,8 +161,27 @@ export const checkTodoStatus = async ({
 
     if (isCompleted === "completed") {
       updatedStatus = { $set: { status: "pending" } };
+
+      await task.tasks.update({
+        tasklist: taskListId,
+        task: taskId,
+        requestBody: {
+          ...currentTask.data,
+          status: "pending",
+        },
+      });
     } else {
       updatedStatus = { $set: { status: "completed" } };
+
+      await task.tasks.update({
+        tasklist: taskListId,
+        task: taskId,
+        requestBody: {
+          ...currentTask.data,
+          status: "completed",
+          completed: new Date().toISOString(),
+        },
+      });
     }
 
     const updatedTodo = await Todo.findByIdAndUpdate(todoId, updatedStatus, {
@@ -131,17 +198,29 @@ export const checkTodoStatus = async ({
 export const deleteTodo = async ({
   clerkId,
   todoId,
-}: {
-  clerkId: string;
-  todoId: string;
-}) => {
+  taskId,
+  taskListId,
+}: IDeleteTodo) => {
   try {
     await connectToDatabase();
 
+    const oAuthClient = await getOAuthClient(clerkId);
+    if (!oAuthClient) {
+      throw new Error("Not authenticated with Google");
+    }
+
+    const task = google.tasks({ version: "v1", auth: oAuthClient });
+
     const userWithTodo = await Todo.find({ clerkId });
+
     if (userWithTodo) {
       await Todo.deleteOne({ _id: todoId });
     }
+
+    await task.tasks.delete({
+      task: taskId,
+      tasklist: taskListId,
+    });
 
     revalidatePath("/");
   } catch (error) {
