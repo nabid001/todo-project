@@ -6,28 +6,8 @@ import { Badge } from "./ui/badge";
 import { format } from "date-fns";
 import { Calendar } from "lucide-react";
 import DeleteTodo from "./DeleteTodo";
+import { TodoListProps } from "@/types/types";
 
-interface TodoListProps {
-  _id: string;
-  title: string;
-  description: string;
-  dueDate: Date;
-  status: "pending" | "completed";
-  priority: "high" | "medium" | "low";
-  user: {
-    _id: string;
-    clerkId: string;
-    name: string;
-    username: string;
-    email: string;
-    picture: string;
-    createdAt: Date;
-    updatedAt: Date;
-    __v: number;
-  };
-  taskId: string;
-  taskListId: string;
-}
 const TodoList = ({ todos }: { todos: TodoListProps[] }) => {
   return (
     <ul className="space-y-3">
@@ -77,12 +57,21 @@ const TodoList = ({ todos }: { todos: TodoListProps[] }) => {
                 >
                   {todo.status === "completed" ? "Completed" : "Pending"}
                 </Badge>
+
+                {todo.user._id === todo.user._id && (
+                  <DeleteTodo
+                    clerkId={todo.user.clerkId}
+                    todoId={todo._id}
+                    taskId={todo.taskId}
+                    taskListId={todo.taskListId}
+                  />
+                )}
               </div>
 
               {todo.description && (
                 <p
                   className={cn(
-                    "text-sm text-slate-500 dark:text-slate-400 mt-1",
+                    "text-sm text-slate-500 dark:text-slate-400",
                     todo.status === "completed" && "line-through"
                   )}
                 >
@@ -95,15 +84,6 @@ const TodoList = ({ todos }: { todos: TodoListProps[] }) => {
                 {format(todo.dueDate, "PPP")}
               </div>
             </div>
-
-            {todo.user._id === todo.user._id && (
-              <DeleteTodo
-                clerkId={todo.user.clerkId}
-                todoId={todo._id}
-                taskId={todo.taskId}
-                taskListId={todo.taskListId}
-              />
-            )}
           </li>
         ))}
     </ul>
