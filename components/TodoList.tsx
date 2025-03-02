@@ -25,17 +25,25 @@ interface TodoListProps {
     updatedAt: Date;
     __v: number;
   };
+  taskId: string;
+  taskListId: string;
 }
 const TodoList = ({ todos }: { todos: TodoListProps[] }) => {
   return (
     <ul className="space-y-3">
-      {todos.length > 0 &&
-        todos.map((todo) => (
+      {todos?.length > 0 &&
+        todos?.map((todo) => (
           <li
             key={todo._id}
             className="group flex items-center gap-3 p-4 rounded-lg transition-all bg-gray-50 hover:bg-gray-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-gray-100 dark:border-slate-700"
           >
-            <CheckTodo todoId={todo._id} isCompleted={todo.status} />
+            <CheckTodo
+              todoId={todo._id}
+              isCompleted={todo.status}
+              taskId={todo.taskId}
+              taskListId={todo.taskListId}
+              clerkId={todo.user.clerkId}
+            />
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
@@ -89,7 +97,12 @@ const TodoList = ({ todos }: { todos: TodoListProps[] }) => {
             </div>
 
             {todo.user._id === todo.user._id && (
-              <DeleteTodo clerkId={todo.user.clerkId} todoId={todo._id} />
+              <DeleteTodo
+                clerkId={todo.user.clerkId}
+                todoId={todo._id}
+                taskId={todo.taskId}
+                taskListId={todo.taskListId}
+              />
             )}
           </li>
         ))}

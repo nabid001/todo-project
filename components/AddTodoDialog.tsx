@@ -52,7 +52,7 @@ const AddTodoDialog = ({ clerkId }: { clerkId: string }) => {
     defaultValues: {
       title: "",
       description: "",
-      dueDate: new Date(),
+      dueDate: new Date(), // Remove the IIFE that was setting 9:00 AM
       status: "pending",
       priority: "medium",
     },
@@ -62,12 +62,23 @@ const AddTodoDialog = ({ clerkId }: { clerkId: string }) => {
     const { title, description, dueDate, priority, status } = values;
     setIsLoading(true);
     try {
+      // Ensure the date is in UTC
+      const utcDate = new Date(
+        Date.UTC(
+          dueDate.getFullYear(),
+          dueDate.getMonth(),
+          dueDate.getDate(),
+          dueDate.getHours(),
+          dueDate.getMinutes()
+        )
+      );
+
       await createTodo({
         title,
         description,
         priority,
         status,
-        dueDate,
+        dueDate: utcDate,
         clerkId,
       });
 
@@ -159,7 +170,7 @@ const AddTodoDialog = ({ clerkId }: { clerkId: string }) => {
               name="dueDate"
               render={({ field }) => (
                 <FormItem className="grid gap-2">
-                  <FormLabel>Due Date</FormLabel>
+                  <FormLabel>Due Date and Time</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -172,19 +183,47 @@ const AddTodoDialog = ({ clerkId }: { clerkId: string }) => {
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value ? (
-                          format(field.value, "PPP")
+                          format(field.value, "PPP 'at' h:mm a")
                         ) : (
-                          <span>Pick a date</span>
+                          <span>Pick a date and time</span>
                         )}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={(date) => field.onChange(date)}
-                        initialFocus
-                      />
+                      <div className="p-4 space-y-4">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(date) => {
+                            if (date) {
+                              // Keep existing time when changing date
+                              const currentTime = field.value;
+                              date.setHours(currentTime.getHours());
+                              date.setMinutes(currentTime.getMinutes());
+                            }
+                            field.onChange(date);
+                          }}
+                          initialFocus
+                        />
+                        <div className="flex items-center gap-2">
+                          <FormLabel className="text-xs">Time:</FormLabel>
+                          <Input
+                            type="time"
+                            required
+                            onChange={(e) => {
+                              const [hours, minutes] = e.target.value
+                                .split(":")
+                                .map(Number);
+                              const newDate = new Date(field.value);
+                              newDate.setHours(hours);
+                              newDate.setMinutes(minutes);
+                              field.onChange(newDate);
+                            }}
+                            value={format(field.value, "HH:mm")}
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
                     </PopoverContent>
                   </Popover>
                   <FormMessage />
