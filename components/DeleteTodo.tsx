@@ -1,18 +1,21 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Loader2Icon, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { deleteTodo } from "@/database/actions/todo.actions";
 import { toast } from "sonner";
 import { IDeleteTodo } from "@/types/types";
+import { useState } from "react";
 
 const DeleteTodo = ({ clerkId, todoId, taskId, taskListId }: IDeleteTodo) => {
+  const [isLoading, setIsLoading] = useState(false);
   const handleDelete = async ({
     clerkId,
     todoId,
     taskId,
     taskListId,
   }: IDeleteTodo) => {
+    setIsLoading(true);
     try {
       await deleteTodo({ clerkId, todoId, taskId, taskListId });
 
@@ -24,6 +27,8 @@ const DeleteTodo = ({ clerkId, todoId, taskId, taskListId }: IDeleteTodo) => {
         description: "Failed to delete todo",
       });
       console.error("Error deleting todo:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -32,10 +37,13 @@ const DeleteTodo = ({ clerkId, todoId, taskId, taskListId }: IDeleteTodo) => {
         variant="ghost"
         size="icon"
         onClick={() => handleDelete({ clerkId, todoId, taskId, taskListId })}
-        className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="hover:opacity-70 transition-all"
       >
-        <Trash2 className="h-4 w-4 text-red-500" />
-        <span className="sr-only">Delete</span>
+        {isLoading ? (
+          <Loader2Icon className="h-4 w-4 p-0 m-0 text-red-400 animate-spin" />
+        ) : (
+          <Trash2 className="h-4 w-4 text-red-400" />
+        )}
       </Button>
     </>
   );

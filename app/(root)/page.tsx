@@ -1,10 +1,12 @@
 import AddTodoDialog from "@/components/AddTodoDialog";
 import Filters from "@/components/Filters";
 import Header from "@/components/Header";
+import TodoListLoading from "@/components/loading/TodoListLoading";
 import TodoList from "@/components/TodoList";
 import { getTodo } from "@/database/actions/todo.actions";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 const Home = async ({
   searchParams,
@@ -40,7 +42,11 @@ const Home = async ({
             </p>
           </div>
         ) : (
-          <TodoList todos={data} />
+          <>
+            <Suspense fallback={<TodoListLoading />}>
+              <TodoList todos={data} />
+            </Suspense>
+          </>
         )}
       </div>
     </main>

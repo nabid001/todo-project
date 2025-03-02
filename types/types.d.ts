@@ -45,3 +45,25 @@ type TaskResponse = {
   error?: string;
   taskListId?: string;
 };
+
+interface TodoListProps {
+  _id: string;
+  title: string;
+  description: string;
+  dueDate: Date;
+  status: "pending" | "completed";
+  priority: "high" | "medium" | "low";
+  user: {
+    _id: string;
+    clerkId: string;
+    name: string;
+    username: string;
+    email: string;
+    picture: string;
+    createdAt: Date;
+    updatedAt: Date;
+    __v: number;
+  };
+  taskId: string;
+  taskListId: string;
+}
