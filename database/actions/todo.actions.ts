@@ -23,7 +23,7 @@ export const getTodo = async ({
     await connectToDatabase();
     const user = await User.findOne({ clerkId });
     if (!user) {
-      throw new Error("User not found");
+      console.log("User not found");
     }
 
     const start = startOfDay(dueDate);

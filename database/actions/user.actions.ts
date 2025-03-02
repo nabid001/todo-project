@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { connectToDatabase } from "../db";
 import User from "../models/user.model";
 import { CreateUserParams, UpdateUserParams } from "@/types/types";
+import Todo from "../models/todo.model";
 
 export async function createUser({
   clerkId,
@@ -52,13 +53,17 @@ export async function deleteUser({ clerkId }: { clerkId: string }) {
     await connectToDatabase();
 
     const existedUser = await User.findOne({ clerkId });
-    if (!existedUser) {
-      throw new Error("User not found");
+
+    if (!existedUser || !existedUser._id) {
+      throw new Error("User not found or invalid user ID");
     }
 
+    await Todo.deleteMany({ user: existedUser._id });
     await User.deleteOne({ clerkId });
+
+    return { success: true };
   } catch (error) {
-    console.log("Failed to delete user", error);
+    console.error("Failed to delete user:", error);
     throw error;
   }
 }
