@@ -4,6 +4,8 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
+export const runtime = "nodejs";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
