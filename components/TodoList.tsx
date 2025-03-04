@@ -22,7 +22,6 @@ const TodoList = ({ todos }: { todos: TodoListProps[] }) => {
               isCompleted={todo.status}
               taskId={todo.taskId}
               taskListId={todo.taskListId}
-              googleId={todo.user.email}
             />
 
             <div className="flex-1 min-w-0">
@@ -43,7 +42,7 @@ const TodoList = ({ todos }: { todos: TodoListProps[] }) => {
                       priorityConfig[todo.priority].color
                     )}
                   >
-                    {priorityConfig[todo.priority].icon}
+                    {priorityConfig[todo.priority].name}
                   </span>
                 </div>
                 <Badge

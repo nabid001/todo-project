@@ -9,21 +9,14 @@ const CheckTodo = ({
   isCompleted,
   taskId,
   taskListId,
-  googleId,
 }: CheckboxProps) => {
-  const handleCheck = async ({
-    id,
-    taskId,
-    taskListId,
-    googleId,
-  }: HandleCheckProps) => {
+  const handleCheck = async ({ id, taskId, taskListId }: HandleCheckProps) => {
     try {
       await checkTodoStatus({
         todoId: id,
         isCompleted,
         taskId,
         taskListId,
-        googleId,
       });
     } catch (error) {
       console.log("Failed to change the status", error);
@@ -32,9 +25,7 @@ const CheckTodo = ({
   return (
     <Checkbox
       value={todoId}
-      onCheckedChange={() =>
-        handleCheck({ id: todoId, taskId, taskListId, googleId })
-      }
+      onCheckedChange={() => handleCheck({ id: todoId, taskId, taskListId })}
     />
   );
 };

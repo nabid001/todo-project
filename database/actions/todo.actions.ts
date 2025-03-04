@@ -187,7 +187,6 @@ export const checkTodoStatus = async ({
 };
 
 export const deleteTodo = async ({
-  clerkId,
   todoId,
   taskId,
   taskListId,
@@ -195,18 +194,14 @@ export const deleteTodo = async ({
   try {
     await connectToDatabase();
 
-    const oAuthClient = await getOAuthClient(clerkId);
+    const oAuthClient = await getOAuthClient();
     if (!oAuthClient) {
       throw new Error("Not authenticated with Google");
     }
 
     const task = google.tasks({ version: "v1", auth: oAuthClient });
 
-    const userWithTodo = await Todo.find({ clerkId });
-
-    if (userWithTodo) {
-      await Todo.deleteOne({ _id: todoId });
-    }
+    await Todo.deleteOne({ _id: todoId });
 
     await task.tasks.delete({
       task: taskId,

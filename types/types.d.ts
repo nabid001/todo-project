@@ -21,14 +21,12 @@ interface CheckboxProps {
   isCompleted: "pending" | "completed";
   taskId: string;
   taskListId: string;
-  googleId: string;
 }
 
 interface HandleCheckProps {
   id: string;
   taskId: string;
   taskListId: string;
-  googleId: string;
 }
 
 export interface CreateUserParams {
