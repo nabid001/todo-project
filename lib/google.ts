@@ -1,8 +1,8 @@
 "use server";
 
 import { google } from "googleapis";
-import { clerkClient } from "@clerk/nextjs/server";
 import { TaskInput, TaskResponse } from "@/types/types";
+import { auth } from "@/auth";
 
 // Define types for better type safety
 
@@ -12,10 +12,9 @@ export async function createGoogleTask({
   dueDate,
   status,
   priority,
-  clerkId,
 }: TaskInput): Promise<TaskResponse> {
   try {
-    const oAuthClient = await getOAuthClient(clerkId);
+    const oAuthClient = await getOAuthClient();
     if (!oAuthClient) {
       return { success: false, error: "Not authenticated with Google" };
     }
@@ -74,35 +73,26 @@ export async function createGoogleTask({
   }
 }
 
-export async function getOAuthClient(clerkId: string) {
-  try {
-    const clerk = await clerkClient();
-    const tokenResponse = await clerk.users.getUserOauthAccessToken(
-      clerkId,
-      "google"
-    );
+export async function getOAuthClient() {
+  const session = await auth();
 
-    if (tokenResponse.data.length === 0 || !tokenResponse.data[0].token) {
+  try {
+    if (!session || !session.user || !session.user.access_token) {
       console.log("No Google OAuth token found for user");
       return null;
     }
 
-    if (
-      !process.env.GOOGLE_OAUTH_CLIENT_ID ||
-      !process.env.GOOGLE_OAUTH_CLIENT_SECRET ||
-      !process.env.GOOGLE_OAUTH_REDIRECT_URL
-    ) {
+    if (!process.env.AUTH_GOOGLE_ID || !process.env.AUTH_GOOGLE_SECRET) {
       throw new Error("Missing required Google OAuth environment variables");
     }
 
     const client = new google.auth.OAuth2(
-      process.env.GOOGLE_OAUTH_CLIENT_ID,
-      process.env.GOOGLE_OAUTH_CLIENT_SECRET,
-      process.env.GOOGLE_OAUTH_REDIRECT_URL
+      process.env.AUTH_GOOGLE_ID,
+      process.env.AUTH_GOOGLE_SECRET
     );
 
     client.setCredentials({
-      access_token: tokenResponse.data[0].token,
+      access_token: session?.user?.access_token,
     });
 
     return client;

@@ -50,6 +50,6 @@ const todoSchema = new Schema(
   { timestamps: true }
 );
 
-const Todo = models.Todo || model("Todo", todoSchema);
+const Todo = models?.Todo || model("Todo", todoSchema);
 
 export default Todo;

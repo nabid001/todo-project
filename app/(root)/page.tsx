@@ -1,10 +1,10 @@
+import { auth } from "@/auth";
 import AddTodoDialog from "@/components/AddTodoDialog";
 import Filters from "@/components/Filters";
 import Header from "@/components/Header";
 import TodoListLoading from "@/components/loading/TodoListLoading";
 import TodoList from "@/components/TodoList";
 import { getTodo } from "@/database/actions/todo.actions";
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
@@ -14,13 +14,16 @@ const Home = async ({
   searchParams: Promise<{ date: string; status: string }>;
 }) => {
   const { date, status } = await searchParams;
-  const { userId } = await auth();
-
-  if (!userId) {
+  const session = await auth();
+  if (!session?.user) {
     redirect("/sign-in");
   }
 
-  const data = await getTodo({ dueDate: date, status, clerkId: userId });
+  const data = await getTodo({
+    dueDate: date,
+    status,
+    email: session.user.email ?? undefined,
+  });
   return (
     <main className="home-container">
       <div className="box-container">
@@ -30,7 +33,7 @@ const Home = async ({
           <>
             <Filters />
           </>
-          <AddTodoDialog clerkId={userId} />
+          <AddTodoDialog email={session?.user?.email} />
         </div>
 
         {data?.length === 0 ? (

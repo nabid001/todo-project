@@ -22,7 +22,7 @@ const TodoList = ({ todos }: { todos: TodoListProps[] }) => {
               isCompleted={todo.status}
               taskId={todo.taskId}
               taskListId={todo.taskListId}
-              clerkId={todo.user.clerkId}
+              googleId={todo.user.email}
             />
 
             <div className="flex-1 min-w-0">
@@ -60,7 +60,7 @@ const TodoList = ({ todos }: { todos: TodoListProps[] }) => {
 
                 {todo.user._id === todo.user._id && (
                   <DeleteTodo
-                    clerkId={todo.user.clerkId}
+                    googleId={todo.user.googleId}
                     todoId={todo._id}
                     taskId={todo.taskId}
                     taskListId={todo.taskListId}

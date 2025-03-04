@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { IDeleteTodo } from "@/types/types";
 import { useState } from "react";
 
-const DeleteTodo = ({ clerkId, todoId, taskId, taskListId }: IDeleteTodo) => {
+const DeleteTodo = ({ googleId, todoId, taskId, taskListId }: IDeleteTodo) => {
   const [isLoading, setIsLoading] = useState(false);
   const handleDelete = async ({
     clerkId,
@@ -36,7 +36,7 @@ const DeleteTodo = ({ clerkId, todoId, taskId, taskListId }: IDeleteTodo) => {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => handleDelete({ clerkId, todoId, taskId, taskListId })}
+        onClick={() => handleDelete({ googleId, todoId, taskId, taskListId })}
         className="hover:opacity-70 transition-all"
       >
         {isLoading ? (

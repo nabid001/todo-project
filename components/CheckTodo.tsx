@@ -2,38 +2,28 @@
 
 import { checkTodoStatus } from "@/database/actions/todo.actions";
 import { Checkbox } from "./ui/checkbox";
+import { CheckboxProps, HandleCheckProps } from "@/types/types";
 
 const CheckTodo = ({
   todoId,
   isCompleted,
   taskId,
   taskListId,
-  clerkId,
-}: {
-  todoId: string;
-  isCompleted: "pending" | "completed";
-  taskId: string;
-  taskListId: string;
-  clerkId: string;
-}) => {
+  googleId,
+}: CheckboxProps) => {
   const handleCheck = async ({
     id,
     taskId,
     taskListId,
-    clerkId,
-  }: {
-    id: string;
-    taskId: string;
-    taskListId: string;
-    clerkId: string;
-  }) => {
+    googleId,
+  }: HandleCheckProps) => {
     try {
       await checkTodoStatus({
         todoId: id,
         isCompleted,
         taskId,
         taskListId,
-        clerkId,
+        googleId,
       });
     } catch (error) {
       console.log("Failed to change the status", error);
@@ -43,7 +33,7 @@ const CheckTodo = ({
     <Checkbox
       value={todoId}
       onCheckedChange={() =>
-        handleCheck({ id: todoId, taskId, taskListId, clerkId })
+        handleCheck({ id: todoId, taskId, taskListId, googleId })
       }
     />
   );
