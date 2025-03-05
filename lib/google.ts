@@ -82,13 +82,16 @@ export async function getOAuthClient() {
       return null;
     }
 
-    if (!process.env.AUTH_GOOGLE_ID || !process.env.AUTH_GOOGLE_SECRET) {
+    if (
+      !process.env.GOOGLE_OAUTH_CLIENT_ID ||
+      !process.env.GOOGLE_OAUTH_CLIENT_SECRET
+    ) {
       throw new Error("Missing required Google OAuth environment variables");
     }
 
     const client = new google.auth.OAuth2(
-      process.env.AUTH_GOOGLE_ID,
-      process.env.AUTH_GOOGLE_SECRET
+      process.env.GOOGLE_OAUTH_CLIENT_ID,
+      process.env.GOOGLE_OAUTH_CLIENT_SECRET
     );
 
     client.setCredentials({
