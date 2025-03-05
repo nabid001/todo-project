@@ -1,64 +1,30 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { connectToDatabase } from "../db";
 import User from "../models/user.model";
-import { CreateUserParams, UpdateUserParams } from "@/types/types";
 
-export async function createUser({
-  clerkId,
-  name,
-  username,
+export const createUser = async ({
   email,
-  picture,
-}: CreateUserParams) {
+  name,
+  image,
+}: {
+  email: string | null | undefined;
+  name: string | null | undefined;
+  image: string | null | undefined;
+}) => {
   try {
     await connectToDatabase();
 
-    const newUser = await User.create({
-      clerkId,
-      username,
-      name,
-      email,
-      picture,
-    });
+    let existingUser = await User.findOne({ email });
 
-    return newUser;
-  } catch (error) {
-    console.log("Error creating user", error);
-    throw error;
-  }
-}
-
-export async function updateUser(params: UpdateUserParams) {
-  try {
-    await connectToDatabase();
-
-    const { clerkId, updateData, path } = params;
-
-    await User.findOneAndUpdate({ clerkId }, updateData, {
-      new: true,
-    });
-
-    revalidatePath(path);
-  } catch (error) {
-    console.log("Error updating user", error);
-    throw error;
-  }
-}
-
-export async function deleteUser({ clerkId }: { clerkId: string }) {
-  try {
-    await connectToDatabase();
-
-    const existedUser = await User.findOne({ clerkId });
-    if (!existedUser) {
-      throw new Error("User not found");
+    if (!existingUser) {
+      existingUser = await User.create({
+        name: name,
+        email: email,
+        picture: image,
+      });
     }
-
-    await User.deleteOne({ clerkId });
   } catch (error) {
-    console.log("Failed to delete user", error);
-    throw error;
+    console.log("Failed to create user", error);
   }
-}
+};

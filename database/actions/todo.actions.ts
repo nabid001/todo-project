@@ -1,6 +1,6 @@
 "use server";
 
-import { ICreateTodo, IDeleteTodo } from "@/types/types";
+import { CheckTodoProps, ICreateTodo, IDeleteTodo } from "@/types/types";
 import { connectToDatabase } from "../db";
 import Todo, { ITodo } from "../models/todo.model";
 import { parseData } from "@/lib/utils";
@@ -13,17 +13,17 @@ import { google } from "googleapis";
 export const getTodo = async ({
   status,
   dueDate,
-  clerkId,
+  email,
 }: {
   status: string;
   dueDate: string;
-  clerkId: string;
+  email: string | undefined;
 }) => {
   try {
     await connectToDatabase();
-    const user = await User.findOne({ clerkId });
+    const user = await User.findOne({ email });
     if (!user) {
-      throw new Error("User not found");
+      console.log("Failed to fetch Todo. Because user not found");
     }
 
     const start = startOfDay(dueDate);
@@ -48,8 +48,7 @@ export const getTodo = async ({
       return parseData(dataFilteredByStatus);
     } else {
       const data = await Todo.find({
-        user: user._id,
-        $and: [{}],
+        user: user?._id,
       })
         .populate("user")
         .sort({ createdAt: -1 });
@@ -67,14 +66,14 @@ export const createTodo = async ({
   dueDate,
   status,
   priority,
-  clerkId,
+  email,
 }: ICreateTodo) => {
   try {
     await connectToDatabase();
 
-    const user = await User.findOne({ clerkId });
+    const user = await User.findOne({ email });
     if (!user) {
-      throw new Error("User not found");
+      throw new Error("User not found. You can't create Todo without a user");
     }
 
     const newTodo: ITodo = await Todo.create({
@@ -96,7 +95,6 @@ export const createTodo = async ({
       dueDate,
       status,
       priority,
-      clerkId,
     });
 
     if (!googleTask || !googleTask.task || !googleTask.taskListId) {
@@ -126,18 +124,11 @@ export const checkTodoStatus = async ({
   isCompleted,
   taskId,
   taskListId,
-  clerkId,
-}: {
-  todoId: string;
-  isCompleted: "pending" | "completed";
-  taskId: string;
-  taskListId: string;
-  clerkId: string;
-}) => {
+}: CheckTodoProps) => {
   try {
     await connectToDatabase();
 
-    const oAuthClient = await getOAuthClient(clerkId);
+    const oAuthClient = await getOAuthClient();
     if (!oAuthClient) {
       throw new Error("Not authenticated with Google");
     }
@@ -196,7 +187,6 @@ export const checkTodoStatus = async ({
 };
 
 export const deleteTodo = async ({
-  clerkId,
   todoId,
   taskId,
   taskListId,
@@ -204,18 +194,14 @@ export const deleteTodo = async ({
   try {
     await connectToDatabase();
 
-    const oAuthClient = await getOAuthClient(clerkId);
+    const oAuthClient = await getOAuthClient();
     if (!oAuthClient) {
       throw new Error("Not authenticated with Google");
     }
 
     const task = google.tasks({ version: "v1", auth: oAuthClient });
 
-    const userWithTodo = await Todo.find({ clerkId });
-
-    if (userWithTodo) {
-      await Todo.deleteOne({ _id: todoId });
-    }
+    await Todo.deleteOne({ _id: todoId });
 
     await task.tasks.delete({
       task: taskId,

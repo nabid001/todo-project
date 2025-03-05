@@ -43,7 +43,7 @@ import { useState } from "react";
 import { createTodo } from "@/database/actions/todo.actions";
 import { toast } from "sonner";
 
-const AddTodoDialog = ({ clerkId }: { clerkId: string }) => {
+const AddTodoDialog = ({ email }: { email: string | undefined | null }) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -52,7 +52,7 @@ const AddTodoDialog = ({ clerkId }: { clerkId: string }) => {
     defaultValues: {
       title: "",
       description: "",
-      dueDate: new Date(), // Remove the IIFE that was setting 9:00 AM
+      dueDate: new Date(),
       status: "pending",
       priority: "medium",
     },
@@ -79,7 +79,7 @@ const AddTodoDialog = ({ clerkId }: { clerkId: string }) => {
         priority,
         status,
         dueDate: utcDate,
-        clerkId,
+        email,
       });
 
       toast("Todo created successfully", {

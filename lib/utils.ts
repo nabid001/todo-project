@@ -12,18 +12,18 @@ export const parseData = (data: any) => {
 
 export const priorityConfig: Record<
   Priority,
-  { icon: React.ReactNode; color: string }
+  { name: React.ReactNode; color: string }
 > = {
   high: {
-    icon: "High",
+    name: "High",
     color: "text-red-500 dark:text-red-400",
   },
   medium: {
-    icon: "Medium",
+    name: "Medium",
     color: "text-yellow-500 dark:text-yellow-400",
   },
   low: {
-    icon: "Low",
+    name: "Low",
     color: "text-blue-500 dark:text-blue-400",
   },
 };

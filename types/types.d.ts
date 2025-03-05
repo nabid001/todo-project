@@ -6,11 +6,31 @@ export interface ICreateTodo {
   dueDate: Date;
   status: string;
   priority: string;
-  clerkId: string;
+  email: string | undefined | null;
+}
+
+interface CheckTodoProps {
+  todoId: string;
+  isCompleted: "pending" | "completed";
+  taskId: string;
+  taskListId: string;
+}
+
+interface CheckboxProps {
+  todoId: string;
+  isCompleted: "pending" | "completed";
+  taskId: string;
+  taskListId: string;
+}
+
+interface HandleCheckProps {
+  id: string;
+  taskId: string;
+  taskListId: string;
 }
 
 export interface CreateUserParams {
-  clerkId: string;
+  googleId: string;
   name: string;
   username: string;
   email: string;
@@ -18,14 +38,14 @@ export interface CreateUserParams {
 }
 
 export interface UpdateUserParams {
-  clerkId: string;
+  googleId: string;
   updateData: Partial<IUser>;
   path: string;
 }
 
 export interface IDeleteTodo {
   todoId: string;
-  clerkId: string;
+  googleId: string;
   taskId: string;
   taskListId: string;
 }
@@ -36,7 +56,6 @@ type TaskInput = {
   dueDate: Date;
   status: string;
   priority: string;
-  clerkId: string;
 };
 
 type TaskResponse = {
@@ -55,7 +74,7 @@ interface TodoListProps {
   priority: "high" | "medium" | "low";
   user: {
     _id: string;
-    clerkId: string;
+    googleId: string;
     name: string;
     username: string;
     email: string;

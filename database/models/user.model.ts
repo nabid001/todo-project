@@ -10,15 +10,17 @@ export interface IUser extends Document {
 
 const userSchema = new Schema(
   {
-    clerkId: { type: String, required: true },
-    name: { type: String, required: true },
-    username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
+    name: { type: String, required: [true, "Name is required!"] },
+    email: {
+      type: String,
+      required: [true, "Email is required!"],
+      unique: true,
+    },
     picture: { type: String },
   },
   { timestamps: true }
 );
 
-const User = models.User || model("User", userSchema);
+const User = models?.User || model("User", userSchema);
 
 export default User;
