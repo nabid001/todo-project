@@ -10,7 +10,7 @@ const SignOutButton = () => {
         await signOut({ redirectTo: "/sign-in" });
       }}
     >
-      <Button variant={"ghost"} type="submit">
+      <Button variant={"ghost"} type="submit" className="w-full">
         Sign Out
       </Button>
     </form>

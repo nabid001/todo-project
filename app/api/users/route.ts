@@ -10,6 +10,20 @@ export async function POST(request: NextRequest) {
 
     let user = await User.findOne({ email });
 
+    if (user && user.provider === "credentials") {
+      await User.findByIdAndUpdate(
+        user._id,
+        {
+          $set: {
+            provider,
+            picture,
+            name,
+          },
+        },
+        { new: true, upset: true }
+      );
+    }
+
     if (!user) {
       user = await User.create({
         name,

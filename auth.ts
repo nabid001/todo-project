@@ -3,8 +3,6 @@ import NextAuth, { type Session } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import type { JWT } from "next-auth/jwt";
-import { connectToDatabase } from "./database/db";
-import User from "./database/models/user.model";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -82,7 +80,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user, account }) {
       if (!user) {
         return false;
       }
@@ -98,7 +96,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           email: user.email,
           picture: user.image,
-          provider: "Google",
+          provider: account?.provider,
         }),
       });
 
@@ -109,14 +107,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
-      if (session.user && token.access_token) {
+      if (session.user && token.access_token && token.provider) {
         session.user.access_token = token.access_token as string;
+        session.user.provider = token.provider as string;
       }
       return session;
     },
     async jwt({ token, account }) {
-      if (account?.access_token) {
+      if (account?.access_token && account.provider) {
         token.access_token = account.access_token;
+        token.provider = account.provider;
       }
       return token;
     },

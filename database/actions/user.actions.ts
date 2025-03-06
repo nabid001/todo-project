@@ -1,5 +1,6 @@
 "use server";
 
+import { parseData } from "@/lib/utils";
 import { connectToDatabase } from "../db";
 import User from "../models/user.model";
 
@@ -29,5 +30,17 @@ export const createUser = async ({
     });
   } catch (error) {
     console.log("Failed to create user", error);
+  }
+};
+
+export const getUser = async (email: string) => {
+  try {
+    await connectToDatabase();
+
+    const user = await User.findOne({ email }).select("provider");
+
+    return parseData(user);
+  } catch (error: any) {
+    throw new Error("Failed to get user", error);
   }
 };
