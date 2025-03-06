@@ -4,17 +4,32 @@ import User from "@/database/models/user.model";
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, picture } = await request.json();
+    const { name, email, picture, provider } = await request.json();
 
     await connectToDatabase();
 
     let user = await User.findOne({ email });
+
+    if (user && user.provider === "credentials") {
+      await User.findByIdAndUpdate(
+        user._id,
+        {
+          $set: {
+            provider,
+            picture,
+            name,
+          },
+        },
+        { new: true, upset: true }
+      );
+    }
 
     if (!user) {
       user = await User.create({
         name,
         email,
         picture,
+        provider,
       });
     }
 

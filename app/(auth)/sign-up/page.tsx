@@ -1,8 +1,12 @@
 import { signIn } from "@/auth";
+import { connectToDatabase } from "@/database/db";
+import User from "@/database/models/user.model";
+import { hash } from "bcryptjs";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-const SignInForm = async () => {
+const SignUp = () => {
   return (
     <section className="flex flex-col min-w-sm justify-center bg-slate-50 px-5 py-5 shadow rounded-lg min-h-full">
       <h1 className="text-2xl font-bold text-slate-800 text-start">
@@ -41,16 +45,41 @@ const SignInForm = async () => {
         <form
           action={async (formData: FormData) => {
             "use server";
-            const email = formData.get("email");
-            const password = formData.get("password");
 
-            await signIn("credentials", {
+            const name = formData.get("name");
+            const email = formData.get("email");
+            const password = formData.get("password") as string;
+
+            await connectToDatabase();
+
+            const user = await User.findOne({ email });
+            if (user) {
+              throw new Error("Email already exists");
+            }
+
+            const hasPass = await hash(password, 10);
+
+            await User.create({
+              name,
               email,
-              password,
+              password: hasPass,
+              provider: "credentials",
             });
+
+            await signIn("credentials", { email, password });
           }}
           className="space-y-4"
         >
+          <div className="flex flex-col gap-1">
+            <label className="text-sm text-gray-700">Name</label>
+            <input
+              name="name"
+              type="text"
+              placeholder="Enter your name"
+              className="border w-full p-1 text-gray-700 rounded-sm border-gray-200"
+              required
+            />
+          </div>
           <div className="flex flex-col gap-1">
             <label className="text-sm text-gray-700">Email</label>
             <input
@@ -79,19 +108,19 @@ const SignInForm = async () => {
             Log In
           </button>
         </form>
-
-        <div className="flex items-center gap-1 mt-5">
-          <p className="text-sm text-gray-500">Create an account</p>
-          <Link
-            href="/sign-up"
-            className="text-sm text-indigo-500 hover:underline"
-          >
-            Sign Up
-          </Link>
-        </div>
       </>
+
+      <div className="flex items-center gap-1 mt-5">
+        <p className="text-sm text-gray-500">Have an account?</p>
+        <Link
+          href="/sign-in"
+          className="text-sm font-medium text-indigo-500 hover:underline transition-all"
+        >
+          Sign In
+        </Link>
+      </div>
     </section>
   );
 };
 
-export default SignInForm;
+export default SignUp;

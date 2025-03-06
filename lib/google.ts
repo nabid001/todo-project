@@ -40,7 +40,7 @@ export async function createGoogleTask({
       }
     } catch (error) {
       console.error("Error getting/creating task list:", error);
-      return { success: false, error: "Failed to access task lists" };
+      throw new Error("Failed to access task lists");
     }
 
     const notes = [

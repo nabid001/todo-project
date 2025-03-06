@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import TodoListLoading from "@/components/loading/TodoListLoading";
 import TodoList from "@/components/TodoList";
 import { getTodo } from "@/database/actions/todo.actions";
+import { getUser } from "@/database/actions/user.actions";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
@@ -18,12 +19,15 @@ const Home = async ({
   if (!session?.user) {
     redirect("/sign-in");
   }
+  const [data, user] = await Promise.all([
+    getTodo({
+      dueDate: date,
+      status,
+      email: session.user.email!,
+    }),
+    getUser(session.user.email!),
+  ]);
 
-  const data = await getTodo({
-    dueDate: date,
-    status,
-    email: session.user.email ?? undefined,
-  });
   return (
     <main className="home-container">
       <div className="box-container">
@@ -36,9 +40,14 @@ const Home = async ({
           <AddTodoDialog email={session?.user?.email} />
         </div>
 
+        {user?.provider === "credentials" && (
+          <p className="text-center pt-5 text-destructive/80">
+            Note: Please link account with Google to create tasks
+          </p>
+        )}
         {data?.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-slate-500 dark:text-slate-400">
+          <div className="text-center pb-12">
+            <p className="text-slate-500">
               {data.length === 0
                 ? "No tasks yet. Add your first task!"
                 : "No tasks match your filters."}
