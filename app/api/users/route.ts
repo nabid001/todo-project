@@ -4,7 +4,7 @@ import User from "@/database/models/user.model";
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, picture } = await request.json();
+    const { name, email, picture, provider } = await request.json();
 
     await connectToDatabase();
 
@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
         name,
         email,
         picture,
+        provider,
       });
     }
 

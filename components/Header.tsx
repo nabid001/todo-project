@@ -1,6 +1,4 @@
 import { auth } from "@/auth";
-import React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   Menubar,
   MenubarContent,
@@ -8,9 +6,11 @@ import {
   MenubarTrigger,
 } from "./ui/menubar";
 import SignOutButton from "./SignOutButton";
+import Image from "next/image";
 
 const Header = async () => {
   const session = await auth();
+
   return (
     <div className="mb-5">
       <div className="flex justify-between items-center">
@@ -22,11 +22,14 @@ const Header = async () => {
             </p>
             <Menubar className="border-none p-0 w-fit">
               <MenubarMenu>
-                <MenubarTrigger className="bg-white shadow-none w-fit">
-                  <Avatar>
-                    <AvatarImage src={session?.user?.image} />
-                    <AvatarFallback>{session.user.name}</AvatarFallback>
-                  </Avatar>
+                <MenubarTrigger className="bg-white  shadow-none w-fit">
+                  <Image
+                    src={session?.user?.image || "/user-icon.svg"}
+                    alt={"icon"}
+                    width={25}
+                    height={25}
+                    className="object-contain rounded-full"
+                  />
                 </MenubarTrigger>
                 <MenubarContent className="min-w-fit" align="end">
                   <SignOutButton />

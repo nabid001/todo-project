@@ -7,3 +7,9 @@ export const todoSchema = z.object({
   status: z.enum(["pending", "completed"]),
   priority: z.enum(["high", "medium", "low"]),
 });
+
+export const InputSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(8).max(50).optional(),
+});

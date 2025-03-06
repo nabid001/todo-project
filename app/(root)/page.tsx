@@ -22,7 +22,7 @@ const Home = async ({
   const data = await getTodo({
     dueDate: date,
     status,
-    email: session.user.email ?? undefined,
+    email: session.user.email!,
   });
   return (
     <main className="home-container">

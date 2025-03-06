@@ -16,7 +16,15 @@ const userSchema = new Schema(
       required: [true, "Email is required!"],
       unique: true,
     },
+    password: { type: String },
     picture: { type: String },
+    provider: {
+      type: String,
+      required: [
+        true,
+        "Provider field is required. You have to tell which provider you are using",
+      ],
+    },
   },
   { timestamps: true }
 );
